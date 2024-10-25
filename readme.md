@@ -20,33 +20,6 @@ Gefin er grunnur að verkefni:
 
 Skjölun notar [`jsdoc`](https://jsdoc.app/).
 
-### NPM
-
-Til að nota þennan grunn sem gefinn er hér þarf að sækja það frá GitHub og keyra NPM:
-
-```bash
-# Inni í möppu sem á að geyma verkefnið
-git clone https://github.com/vefforritun/vef1-2024-v9.git
-# eða
-git clone git@github.com:vefforritun/vef1-2024-v9.git
-
-# Förum inn í möppu
-cd vef1-2024-v9
-
-# Sækjum öll dependency með NPM
-npm install
-
-# Keyrum NPM script fyrir development
-npm run dev
-```
-
-Áður en skilað er þarf að breyta remote í þitt eigið repo:
-
-```bash
-git remote remove origin
-git remote add origin <slóð á þitt GitHub repo>
-```
-
 ## Virkni
 
 ### Grunnviðmót
