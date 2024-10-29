@@ -5,6 +5,9 @@
 
 html {
   box-sizing: border-box;
+  background-image: url('./image.png');
+  background-repeat: no-repeat;
+  background-size: cover;
 }
 
 *,
@@ -22,7 +25,12 @@ html {
     Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 
   --color-light-gray: #f5f5f5;
+  --color-transparent: #f5f5f5b3;
   --color-background-zebra: var(--color-light-gray);
+
+
+  --color-light-blue: #2196f3;
+  
 }
 
 .hidden {
@@ -61,7 +69,8 @@ main {
 }
 
 .locations,
-.results {
+.output,
+.output section {
   display: flex;
   flex-direction: column;
   gap: var(--spacing);
@@ -87,4 +96,14 @@ main {
 
 .forecast tbody tr:nth-child(2n + 1) {
   background-color: var(--color-background-zebra);
+}
+
+.forecast tbody tr:nth-child(2n) {
+  background-color: var(--color-transparent);
+  
+}
+
+.output table {
+  width: 100%;
+  max-width: var(--max-width)
 }

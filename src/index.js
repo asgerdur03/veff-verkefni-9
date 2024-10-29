@@ -73,21 +73,28 @@ function renderIntoResultsContent(element) {
  * @param {Array<import('./lib/weather.js').Forecast>} results
  */
 function renderResults(location, results) {
+
+  // loopa í gegnu fylik og bæta við gildum i table
   
   const header = el(
     'tr', 
     {}, 
     el('th', {},'Tími'), 
-    el('th', {}, 'Hiti'), 
-    el('th', {}, 'Úrkoma')
+    el('th', {}, 'Hiti (°C)'), 
+    el('th', {}, 'Úrkoma (mm)')
   );
 
+
   const body = el(
-    'tr', 
-    {}, 
-    el('td', {},'Tími'), 
-    el('td', {}, 'Hiti'), 
-    el('td', {}, 'Úrkoma')
+    'tbody',
+    {},
+    ...results.map((forecast) => el(
+      'tr', 
+      {}, 
+      el('td', {}, forecast.time.slice(-5)), 
+      el('td', {}, forecast.temperature), 
+      el('td', {}, forecast.precipitation + ' ')
+    ))
   );
 
   const resultsTable = el(
@@ -97,18 +104,9 @@ function renderResults(location, results) {
     el(
       'section', 
       {}, 
-      el(
-        'h2', 
-        {},
-        `Leitarniðurstöður fyrir: ${location.title}` 
-      ), 
-      el(
-        'p', 
-        {}, 
-        `Lat: ${location.lat}, Long: ${location.lng}`
-      ),
+      el('h2', {},`Leitarniðurstöður fyrir: ${location.title}` ), 
+      el('p', {}, `Spá fyrir dagin á breiddargráðu ${location.lat} og lengdargráðu ${location.lng}`),
       resultsTable
-      
       )
   )
 
@@ -123,10 +121,8 @@ function renderError(error) {
   const message = error.message;
 
   renderIntoResultsContent(
-    el('p', {}, `Villa kom upp: ${message}`), // el('p', {}, message)
+    el('p', {}, `Villa kom upp: ${message}`), 
   )
-
-  
 }
 
 /**
@@ -173,26 +169,22 @@ async function onSearch(location) {
  * Biður notanda um leyfi gegnum vafra.
  */
 async function onSearchMyLocation() {
+  if (!navigator.geolocation) {
+    renderError(new Error('Vafrin styður ekki staðsetningarþjónustu.'));
+    return;
+  }
 
-  // TODO útfæra
-
-  // laga, breyta probs
-
-  if (navigator.geolocation) {
-    navigator.geolocation.getCurrentPosition(async (position) => {
-      const { latitude, longitude } = position.coords;
+  navigator.geolocation.getCurrentPosition(
+    async ({ coords: { latitude, longitude } }) => {
       try {
-        const location = { title: 'Núverandi staðsetning', lat: latitude, lng: longitude };
-        await onSearch(location);
+        await onSearch({ title: 'Þín Staðsetning', lat: latitude, lng: longitude });
       } catch (error) {
         renderError(error);
       }
-    }, (error) => {
-      renderError(new Error('Gat ekki fengið leyfi til að nálgast staðsetningu.'));
-    });
-  } else {
-    renderError(new Error('Vafrinn þinn styður ekki staðsetningarþjónustu.'));
-  }
+    },
+    () => renderError(new Error('Gat ekki fengið leyfi til að nálgast staðsetningu.'))
+  );
+
 }
 
 /**
@@ -231,7 +223,7 @@ function render(container, locations, onSearch, onSearchMyLocation) {
   // Búum til <header> með beinum DOM aðgerðum
   const headerElement = document.createElement('header');
   const heading = document.createElement('h1');
-  heading.appendChild(document.createTextNode('Veðurstofa Ásu'));
+  heading.appendChild(document.createTextNode('Veðurstofa verkefni 9'));
   headerElement.appendChild(heading);
   parentElement.appendChild(headerElement);
 
@@ -257,6 +249,9 @@ function render(container, locations, onSearch, onSearchMyLocation) {
   locationsElement.appendChild(locationsListElement);
 
   // <div class="loctions"><ul class="locations__list"><li><li><li></ul></div>
+  const myLocationButtonElement = renderLocationButton('Þín staðsetning (Þarf leyfi)', onSearchMyLocation);
+  locationsListElement.appendChild(myLocationButtonElement);
+
   for (const location of locations) {
     const liButtonElement = renderLocationButton(location.title, () => {
       console.log('Halló!!', location);
