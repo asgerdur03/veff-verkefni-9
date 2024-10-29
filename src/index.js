@@ -51,50 +51,93 @@ const locations = [
  */
 function renderIntoResultsContent(element) {
   // TODO útfæra
-  const resultsContent = document.querySelector('.results');
+  const outputElement = document.querySelector('.output');
 
-  empty(resultsContent);
+  if (!outputElement){
+    console.warn('fann ekki outputElement');
+    return;
+  }
 
-  resultsContent.appendChild(element);
+  empty(outputElement);
 
-  //resultsContent.appendChild(element);
-
+  outputElement.appendChild(element);
+  
 }
 
 /**
  * Birtir niðurstöður í viðmóti.
+ * Displays the weather forecast results in the UI.
+ * @param {SearchLocation} location The location for which the weather data is displayed.
+ * @param {Array<import('./lib/weather.js').Forecast>} results An array of forecast data containing time, temperature, and precipitation.
  * @param {SearchLocation} location
  * @param {Array<import('./lib/weather.js').Forecast>} results
  */
 function renderResults(location, results) {
-  // TODO útfæra
+  
+  const header = el(
+    'tr', 
+    {}, 
+    el('th', {},'Tími'), 
+    el('th', {}, 'Hiti'), 
+    el('th', {}, 'Úrkoma')
+  );
 
-  console.log('slay')
+  const body = el(
+    'tr', 
+    {}, 
+    el('td', {},'Tími'), 
+    el('td', {}, 'Hiti'), 
+    el('td', {}, 'Úrkoma')
+  );
+
+  const resultsTable = el(
+    'table', {class: 'forecast'}, header, body);
+
+  renderIntoResultsContent(
+    el(
+      'section', 
+      {}, 
+      el(
+        'h2', 
+        {},
+        `Leitarniðurstöður fyrir: ${location.title}` 
+      ), 
+      el(
+        'p', 
+        {}, 
+        `Lat: ${location.lat}, Long: ${location.lng}`
+      ),
+      resultsTable
+      
+      )
+  )
+
 
 }
-
 /**
  * Birta villu í viðmóti.
  * @param {Error} error
  */
 function renderError(error) {
-  // TODO útfæra
-  // "Gat ekki sótt staðsetiningu"
-  console.error("error", error);
-  const errorMessage = el('p', {}, 'Gat ekki sốtt staðsetningu. Villa: ' + error.message);
 
-  renderIntoResultsContent(errorMessage);
+  const message = error.message;
+
+  renderIntoResultsContent(
+    el('p', {}, `Villa kom upp: ${message}`), // el('p', {}, message)
+  )
+
+  
 }
 
 /**
  * Birta biðstöðu í viðmóti.
  */
 function renderLoading() {
-  console.log('render loading');
 
-  const loadingMessage = el('p', {}, 'Er að leita...');
-  renderIntoResultsContent(loadingMessage);
-  // TODO útfæra
+  renderIntoResultsContent(
+    el('p', {}, 'Leita...')
+  )
+
 }
 
 /**
@@ -108,18 +151,21 @@ async function onSearch(location) {
   // Birta loading state
   renderLoading();
 
-  const results = await weatherSearch(location.lat, location.lng);
+  let results;
+
+  try {
+    results = await weatherSearch(location.lat, location.lng);
+
+  } catch (error) {
+      renderError(error);
+      return;
+  }
+
+  renderResults(location, results ?? []);
 
   console.log(results);
 
-  // TODO útfæra
-  if (results) {
-    renderResults(location, results);
-  } else {
-    renderError();
-  }
   
-  // Hér ætti að birta og taka tillit til mismunandi staða meðan leitað er.
 }
 
 /**
@@ -225,46 +271,19 @@ function render(container, locations, onSearch, onSearchMyLocation) {
 
 
   // TODO útfæra niðurstöðu element
-  const resultsElement = el('div', { class: 'results' });
-  parentElement.appendChild(resultsElement);
-
-  container.appendChild(parentElement);
-
-  // container fyrir niðurstöður
-  /*
-  const resultsElement = document.createElement('div');
-  resultsElement.classList.add('results'); // class="results"
-
-  // bætum við Heading ,texta og töflu
-  const resultsHeaderElement = document.createElement('h2');
-  resultsHeaderElement.appendChild(document.createTextNode('Niðurstöður'));
-
-  const resultsAreaHeadingElement = document.createElement('h3');
-  resultsAreaHeadingElement.appendChild(document.createTextNode('<Strengur af takka sem ýtt var á>'));
-
-  const resultsLocationTextElement = document.createElement('p');
-  resultsLocationTextElement.appendChild(document.createTextNode('Spá fyrir dagin á breiddargráðu <lat> og lengdargráðu <lng>.'));
-
   
 
-  resultsElement.appendChild(resultsHeaderElement);
-  resultsElement.appendChild(resultsAreaHeadingElement);
-  resultsElement.appendChild(resultsLocationTextElement);
+  const outputElement = document.createElement('div');
+  outputElement.classList.add('output');
+  parentElement.appendChild(outputElement);
 
-  const resultsTableElement = document.createElement('table');
-
-
-  resultsElement.appendChild(resultsTableElement);
-
-  // 
   
 
 
 
 
 
-  parentElement.appendChild(resultsElement);
-*/
+
 
   
 

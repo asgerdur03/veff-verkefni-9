@@ -17,7 +17,32 @@ async function sleep(ms) {
  * @returns {Array<Forecast>}
  */
 function parseResponse(data) {
-  return data;
+
+  const hourly = data.hourly;
+  const {time= [], temperature_2m= []	, precipitation = []} = hourly;
+
+  const allForecasts = [];
+  for (let i = 0; i < time.length; i++) {	
+    /** @type string */
+    const _time = time[i];
+
+    /** @type number */
+    const _temperature = temperature_2m[i];
+
+    /** @type number */
+    const _precipitation = precipitation[i];
+
+    /**@type Forecast */
+    const forecast = {
+      time: _time,
+      temperature: _temperature,
+      precipitation: _precipitation,
+    };
+
+    allForecasts.push(forecast);
+
+  }
+  return allForecasts;
 }
 
 /**
